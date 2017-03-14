@@ -135,9 +135,9 @@ void Wifi_UDP_Manager(void)
             }
             else{
                 wifi_upd_packet_timeout++; /* Increase timeout counter... */
-                //#if defined(ENABLE_DEV_UDP)
+                #if defined(ENABLE_DEV_UDP)
                 Serial.println("Invalid packet received.");
-                //#endif
+                #endif
             }
         }
         else{
@@ -146,9 +146,9 @@ void Wifi_UDP_Manager(void)
 
         /* monitor timeout, checked every 10ms */
         if (wifi_upd_packet_timeout >= UDP_PACKETS_TIMEOUT){
-            //#if defined(ENABLE_DEV_UDP)
+            #if defined(ENABLE_DEV_UDP)
             Serial.println("Timeout UDP!!!");
-            //#endif
+            #endif
             wifi_upd_packet_timeout = UDP_PACKETS_TIMEOUT;
             /* Connection lost... let's try to send again CONNECTION command */
             wifi_upd_communcation_state = UPD_NOT_CONNECTED;
