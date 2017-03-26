@@ -11,7 +11,11 @@ MicroOLED oledLcd(PIN_RESET_LCD, DC_JUMPER);
 
 void DisplayInit(void)
 {
+    //#if  defined(ENABLE_REMAPING_I2C_PIN)
     oledLcd.begin(PIN_SDA, PIN_SCL);
+    //#else
+    //oledLcd.begin();
+    //#endif
     delay(10);
     oledLcd.clear(PAGE);
     oledLcd.clear(ALL);
@@ -120,7 +124,7 @@ void MenuPrint_Menu_2(void)
     oledLcd.setTextSize(2);
     oledLcd.setCursor(3, 10);
     /* Get conversion factor based on Gears and Wheel perimeter */
-    float conv_factor = ((float)WHEEL_PERIMETER_CM * (float)MOTOR_GEAR_RATIO * 6.0 ) / 10000.0;
+    float conv_factor = ((float)WHEEL_PERIMETER_CM * (float)MOTOR_GEAR_RATIO) / 10000.0;
     /* Convert from RPMs to km/h */
     float current_speed = conv_factor * (float)esc_rpm;
     if (current_speed >= 100){
@@ -140,16 +144,24 @@ void MenuPrint_Menu_2(void)
 void MenuPrint_Menu_3(void)
 {
     oledLcd.clear(PAGE);
-    
-    oledLcd.setCursor(5, 5);
-    oledLcd.print(esc_current_in, 1);
-    oledLcd.print("A");
-   
-    oledLcd.setCursor(5, 20);
+    oledLcd.setTextSize(2);
+    oledLcd.setCursor(3, 10);
     oledLcd.print(esc_current_motor, 1);
+    yield();
+    oledLcd.setTextSize(1);
+    oledLcd.setCursor(40, 33);
     oledLcd.print("A");
     yield();
-    /*
+    
+    /*    oledLcd.setCursor(5, 20);
+    oledLcd.print(esc_amp_hours, 1);
+    oledLcd.print("Ah");
+    yield();
+    oledLcd.setCursor(5, 30);
+    oledLcd.print(esc_amp_hours_charged, 1);
+    oledLcd.print("Ah");
+    yield();
+
     oledLcd.setCursor(1, 20);
     oledLcd.print(, 1);
     oledLcd.print("A");
@@ -179,8 +191,8 @@ void MenuPrint_Menu_4(void)
     //oledLcd.setCursor(10, 15);
     //oledLcd.print(NunchukY(), DEC);
    
-    byte remapY = map(NunchukY(), 125, 255, 1, 40);
-    byte remapY_ORG = map(NunchukY_ORG(), 125, 255, 1, 40);
+    byte remapY = map(NunchukY(), 1, 255, 1, 40);
+    byte remapY_ORG = map(NunchukY_ORG(), 1, 255, 1, 40);
     oledLcd.rect(20, 7, 5, remapY);
     oledLcd.rect(40, 7, 5, remapY_ORG);
    
