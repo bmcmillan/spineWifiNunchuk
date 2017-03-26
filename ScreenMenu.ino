@@ -3,10 +3,7 @@
 uint8_t state = 0;
 uint8_t button_released = 1;
   
-
-#define BUTTON_MENU_PRESSED()           NunchukIsCPressed()
 #define BUTTON_MENU_PRESSED_RELEASED()  (BUTTON_MENU_PRESSED() && button_released)
-#define BUTTON_BOTH_PRESSED()           NunchukIsCPressed() && NunchukIsZPressed()
 
 
 #define  i_INIT        ((uint8_t)0)
@@ -44,7 +41,7 @@ void ScreenMenu(void)
             if(state != 0){	/* [1]. */
                 /* Pointing to the next state. */
                 ind_ScreenMenu = i_MENU_ERROR;
-            }else if(!BUTTON_MENU_PRESSED()){	/* [2]. */
+            }else if(BUTTON_MENU_RELEASED()){	/* [2]. */
                 /* Transition actions (Meally). */
                 button_released = 1;
             }else if(BUTTON_MENU_PRESSED_RELEASED()){	/* [3]. */
@@ -62,7 +59,7 @@ void ScreenMenu(void)
             if(state != 0){	/* [1]. */
                 /* Pointing to the next state. */
                 ind_ScreenMenu = i_MENU_ERROR;
-            }else if(!BUTTON_MENU_PRESSED()){	/* [2]. */
+            }else if(BUTTON_MENU_RELEASED()){	/* [2]. */
                 /* Transition actions (Meally). */
                 button_released = 1;
             }else if(BUTTON_MENU_PRESSED_RELEASED()){	/* [3]. */
@@ -80,7 +77,7 @@ void ScreenMenu(void)
             if(state != 0){	/* [1]. */
                 /* Pointing to the next state. */
                 ind_ScreenMenu = i_MENU_ERROR;
-            }else if(!BUTTON_MENU_PRESSED()){	/* [2]. */
+            }else if(BUTTON_MENU_RELEASED()){	/* [2]. */
                 /* Transition actions (Meally). */
                 button_released = 1;
             }else if(BUTTON_MENU_PRESSED_RELEASED()){	/* [3]. */
@@ -98,7 +95,7 @@ void ScreenMenu(void)
             if(state != 0){	/* [1]. */
                 /* Pointing to the next state. */
                 ind_ScreenMenu = i_MENU_ERROR;
-            }else if(!BUTTON_MENU_PRESSED()){	/* [2]. */
+            }else if(BUTTON_MENU_RELEASED()){	/* [2]. */
                 /* Transition actions (Meally). */
                 button_released = 1;
             }else if(BUTTON_MENU_PRESSED_RELEASED()){	/* [3]. */

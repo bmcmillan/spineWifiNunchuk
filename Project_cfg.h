@@ -4,13 +4,6 @@
 #include "arduino.h"
 #include <String.h>
 
-/*******************************************************************************
-**    Types                                                                   **
-*******************************************************************************/
-
-#define NULL    ( (void *)0 )
-
-
 
 /*******************************************************************************
 **    Configuration                                                           **
@@ -19,23 +12,30 @@
 /******** General Configuration ***********************************************/
 #define BAUD_RATE_DEBUG       115200
 
-//#define ENABLEDEVMODE //Output debugging information Nunchuck
+/* Enable/Disable debug information */
+//#define ENABLEDEVMODE
 //#define ENABLE_DEV_UDP
-
 #define ENABLE_INCREASE_RESOLUTION_ACCEL
+#define BRAKE_LOW_PASS_FILTER_FACTOR    15u /* Value beetween 1 (max filtering) - 32 (no filter)*/
+#define ACCEL_LOW_PASS_FILTER_FACTOR    21u /* Value beetween 1 (max filtering) - 32 (no filter)*/
 
-#define WIFI_CONNECT_TIMEOUT  20 // x 0,5s
+/* Connection timeouts configuration */
+#define WIFI_CONNECT_TIMEOUT           20u /* x 0,5s */
+#define UDP_PACKETS_TIMEOUT            50u
 
-#define UDP_PACKETS_TIMEOUT   50
-
+/* Spine wheel and motor gear configuration to calculate speed */
 #define WHEEL_PERIMETER_CM      (float)56.0  
-#define MOTOR_GEAR_RATIO        (float)0.2105 /* 16/76 * 100 */
+#define MOTOR_GEAR_RATIO        (float)0.2105 /* 16/76 */
 
-#define VBAT_MIN_MV       1980
-#define VBAT_MAX_MV       2550
+/* Battery ranges defined to show 0%-100% in the Screen */
+#define VBAT_MIN_MV                   1980u
+#define VBAT_MAX_MV                   2550u
+
+/* Menu Buttons interaction */
+#define BUTTON_MENU_PRESSED()       ((NunchukX() < 20u)  || (NunchukX() > 230u))
+#define BUTTON_MENU_RELEASED()      ((NunchukX() > 110u) && (NunchukX() < 134u))
 
 /******** Arduino Pins Configuration ******************************************/
-#define BUTTON_PIN      0u
 
 /* MicroOLED Definition  */
 #define PIN_RESET_LCD 16
@@ -44,14 +44,6 @@
 /* Nunchuck/LCD I2C  */
 #define PIN_SDA   5
 #define PIN_SCL   4
-
-
-/*******************************************************************************
-**    Defines                                                                 **
-*******************************************************************************/  
-
-#define TRUE  1
-#define FALSE 0
 
 
 #include "ScreenMenu.h"
