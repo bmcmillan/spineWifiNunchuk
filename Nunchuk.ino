@@ -10,12 +10,16 @@ int maxNunchukChecksumCount = 100;
 byte nunchuckState = 1;
 
 //Nunchuk configuration
-uint8_t NunchukLowerLimitInputAccel  = 135;
-uint8_t NunchukLowerLimitOutputAccel = 150;
-uint8_t NunchukUpperLimitInputAccel  = 235;
-uint8_t NunchukUpperLimitOutputAccel = 200;
+uint8_t defaultNunchukMax = 250;
+uint8_t NunchukLowerLimitInputAccel  = 135u;
+uint8_t NunchukLowerLimitOutputAccel = 150u;
+uint8_t NunchukUpperLimitInputAccel  = 255u;
+uint8_t NunchukUpperLimitOutputAccel = 225u;
+
+uint8_t NunchukLowerLimitInputBrake  = 45u;
+uint8_t NunchukInputAccelFilter      = 160u;
 uint8_t defaultNunchukNeutral = 127;
-uint8_t defaultNunchukMax = 255;
+
 
 void NunchukReadSetDefault(void);
 
@@ -71,6 +75,8 @@ byte NunchukState(void)
 
 void NunchukRead(void)
 {
+  uint8_t Nunchuk_Y_remap;
+  
   nunchuk.update();
   yield();
 
@@ -79,26 +85,33 @@ void NunchukRead(void)
     yield();
     if (isNunchukChecksumValid(nunchuk))
     {
-		#if defined(ENABLE_INCREASE_RESOLUTION_ACCEL)
-		/* Remap the value reading from Nunchuck to have better resolution in the middle */
-		if (nunchuk.analogY <= defaultNunchukNeutral)
-        {   /* No actions for "brake" values */
-            Nunchuk_Y = nunchuk.analogY;
+       #if defined(ENABLE_INCREASE_RESOLUTION_ACCEL)
+       /* Remap the value reading from Nunchuck to have better resolution in the middle */
+       if (nunchuk.analogY <= defaultNunchukNeutral)
+       {
+            Nunchuk_Y_remap = map(nunchuk.analogY, 0, defaultNunchukNeutral, NunchukLowerLimitInputBrake, defaultNunchukNeutral);
+            yield();
+            Nunchuk_Y = (uint8_t)((((uint16_t)Nunchuk_Y * (uint16_t)(32U - BRAKE_LOW_PASS_FILTER_FACTOR)) + ((uint16_t)Nunchuk_Y_remap * (uint16_t)BRAKE_LOW_PASS_FILTER_FACTOR))/ 32U);
         }
         else if (nunchuk.analogY < NunchukLowerLimitInputAccel)
         {
             Nunchuk_Y = map(nunchuk.analogY, defaultNunchukNeutral, NunchukLowerLimitInputAccel, defaultNunchukNeutral, NunchukLowerLimitOutputAccel);
         }
-        else if (nunchuk.analogY < NunchukUpperLimitInputAccel)
-		{
-            Nunchuk_Y = map(nunchuk.analogY, NunchukLowerLimitInputAccel, NunchukUpperLimitInputAccel, NunchukLowerLimitOutputAccel, NunchukUpperLimitOutputAccel);
+        else /* if (nunchuk.analogY < NunchukUpperLimitInputAccel)*/
+        {
+            Nunchuk_Y_remap = map(nunchuk.analogY, NunchukLowerLimitInputAccel, NunchukUpperLimitInputAccel, NunchukLowerLimitOutputAccel, NunchukUpperLimitOutputAccel);
+            yield();
+            if (nunchuk.analogY < NunchukInputAccelFilter){
+              Nunchuk_Y = Nunchuk_Y_remap;
+            }
+            else{ /* start to apply low pass filter */
+              Nunchuk_Y = (uint8_t)((((uint16_t)Nunchuk_Y * (uint16_t)(32U - ACCEL_LOW_PASS_FILTER_FACTOR)) + ((uint16_t)Nunchuk_Y_remap * (uint16_t)ACCEL_LOW_PASS_FILTER_FACTOR))/ 32U);
+            }
         }
-        else{
-            Nunchuk_Y = map(nunchuk.analogY, NunchukUpperLimitInputAccel, defaultNunchukMax, NunchukUpperLimitOutputAccel, defaultNunchukMax);
-        }
-		#else
+
+        #else
         Nunchuk_Y = nunchuk.analogY;
-		#endif
+        #endif
         yield();
         Nunchuk_Y_org = nunchuk.analogY;
         Nunchuk_X = nunchuk.analogX;
