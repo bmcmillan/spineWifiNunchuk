@@ -34,7 +34,8 @@ float esc_amp_hours = 0;
 float esc_amp_hours_charged = 0;
 float esc_watt_hours = 0;
 float esc_watt_hours_charged = 0;
-
+int32_t esc_tachometer = 0;
+int32_t esc_tachometer_abs = 0;
 
 
 void Wifi_SendNunchuckData(void);
@@ -208,6 +209,10 @@ void Wifi_ProcessPacketData(char* dataBuff)
     BytesToFloat(&dataBuff[buffer_ptr], &esc_watt_hours);
     buffer_ptr += 4;
     BytesToFloat(&dataBuff[buffer_ptr], &esc_watt_hours_charged);
+    buffer_ptr += 4;
+    BytesToInt(&dataBuff[buffer_ptr], &esc_tachometer);
+    buffer_ptr += 4;
+    BytesToInt(&dataBuff[buffer_ptr], &esc_tachometer_abs);
     
     #if defined(ENABLE_DEV_UDP)
     Serial.print("Vin:");
@@ -302,5 +307,14 @@ void BytesToFloat(char* b, float* val)
    float_temp.bytes[1] = b[1];
    float_temp.bytes[0] = b[0];
    *val = float_temp.number;
+}
+
+void BytesToInt(char* b, int32_t* val)
+{
+    int32_t res = ((uint32_t) b[3]) << 24 |
+                  ((uint32_t) b[2]) << 16 |
+                  ((uint32_t) b[1]) << 8 |
+                  ((uint32_t) b[0]);
+     *val =  res;
 }
 

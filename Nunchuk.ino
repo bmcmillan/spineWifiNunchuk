@@ -12,9 +12,9 @@ byte nunchuckState = 1;
 //Nunchuk configuration
 uint8_t defaultNunchukMax = 250;
 uint8_t NunchukLowerLimitInputAccel  = 135u;
-uint8_t NunchukLowerLimitOutputAccel = 150u;
+uint8_t NunchukLowerLimitOutputAccel = 145u;
 uint8_t NunchukUpperLimitInputAccel  = 255u;
-uint8_t NunchukUpperLimitOutputAccel = 225u;
+uint8_t NunchukUpperLimitOutputAccel = 215u;
 
 uint8_t NunchukLowerLimitInputBrake  = 45u;
 uint8_t NunchukInputAccelFilter      = 160u;
@@ -35,7 +35,12 @@ ArduinoNunchuk nunchuk = ArduinoNunchuk();
 
 void NunchukInit(void)
 {
+    #if  defined(ENABLE_REMAPING_I2C_PIN)
     nunchuk.init(PIN_SDA, PIN_SCL);
+    #else
+    nunchuk.begin();
+    #endif
+
     /*nunchuk.init();*/
     NunchukReadSetDefault();
 }
@@ -97,15 +102,16 @@ void NunchukRead(void)
         {
             Nunchuk_Y = map(nunchuk.analogY, defaultNunchukNeutral, NunchukLowerLimitInputAccel, defaultNunchukNeutral, NunchukLowerLimitOutputAccel);
         }
-        else /* if (nunchuk.analogY < NunchukUpperLimitInputAccel)*/
+        else
         {
             Nunchuk_Y_remap = map(nunchuk.analogY, NunchukLowerLimitInputAccel, NunchukUpperLimitInputAccel, NunchukLowerLimitOutputAccel, NunchukUpperLimitOutputAccel);
             yield();
+            /* Apply two level filtering */
             if (nunchuk.analogY < NunchukInputAccelFilter){
-              Nunchuk_Y = Nunchuk_Y_remap;
+                Nunchuk_Y = (uint8_t)((((uint16_t)Nunchuk_Y * (uint16_t)(32U - ACCEL_LOW_PASS_FILTER_FACTOR_L1)) + ((uint16_t)Nunchuk_Y_remap * (uint16_t)ACCEL_LOW_PASS_FILTER_FACTOR_L1))/ 32U);
             }
             else{ /* start to apply low pass filter */
-              Nunchuk_Y = (uint8_t)((((uint16_t)Nunchuk_Y * (uint16_t)(32U - ACCEL_LOW_PASS_FILTER_FACTOR)) + ((uint16_t)Nunchuk_Y_remap * (uint16_t)ACCEL_LOW_PASS_FILTER_FACTOR))/ 32U);
+                Nunchuk_Y = (uint8_t)((((uint16_t)Nunchuk_Y * (uint16_t)(32U - ACCEL_LOW_PASS_FILTER_FACTOR_L2)) + ((uint16_t)Nunchuk_Y_remap * (uint16_t)ACCEL_LOW_PASS_FILTER_FACTOR_L2))/ 32U);
             }
         }
 
@@ -193,8 +199,11 @@ bool isNunchukChecksumValid(ArduinoNunchuk nunchuk)
   {
    // Wire.endTransmission(false);
     delay(1);
+    #if  defined(ENABLE_REMAPING_I2C_PIN)
     nunchuk.init(PIN_SDA, PIN_SCL);
-    /*nunchuk.init();*/
+    #else
+    nunchuk.begin();
+    #endif
     delay(1);
     return false;
   }

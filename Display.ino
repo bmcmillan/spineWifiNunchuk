@@ -11,11 +11,11 @@ MicroOLED oledLcd(PIN_RESET_LCD, DC_JUMPER);
 
 void DisplayInit(void)
 {
-    //#if  defined(ENABLE_REMAPING_I2C_PIN)
+    #if  defined(ENABLE_REMAPING_I2C_PIN)
     oledLcd.begin(PIN_SDA, PIN_SCL);
-    //#else
-    //oledLcd.begin();
-    //#endif
+    #else
+    oledLcd.begin();
+    #endif
     delay(10);
     oledLcd.clear(PAGE);
     oledLcd.clear(ALL);
@@ -146,36 +146,17 @@ void MenuPrint_Menu_3(void)
     oledLcd.clear(PAGE);
     oledLcd.setTextSize(2);
     oledLcd.setCursor(3, 10);
-    oledLcd.print(esc_current_motor, 1);
+    
+    /* Get linear distance based on tacometer steps */
+    float tempf = (float)esc_tachometer_abs * WHEEL_STEP_TACOMENTER_MM; /*esc_tachometer_abs*/
+    /* Convert milimeters to meters */
+    uint32_t distance = (uint32_t)tempf/1000.0;
+    oledLcd.print(distance);
     yield();
     oledLcd.setTextSize(1);
-    oledLcd.setCursor(40, 33);
-    oledLcd.print("A");
+    oledLcd.setCursor(5, 33);
+    oledLcd.print("Distance"); 
     yield();
-    
-    /*    oledLcd.setCursor(5, 20);
-    oledLcd.print(esc_amp_hours, 1);
-    oledLcd.print("Ah");
-    yield();
-    oledLcd.setCursor(5, 30);
-    oledLcd.print(esc_amp_hours_charged, 1);
-    oledLcd.print("Ah");
-    yield();
-
-    oledLcd.setCursor(1, 20);
-    oledLcd.print(, 1);
-    oledLcd.print("A");
-   
-    oledLcd.setCursor(1, 25);
-    oledLcd.print(, 1);
-    oledLcd.print("A out");
-    */
-   
-    /*extern float esc_amp_hours_charged;
-    extern float esc_watt_hours_charged;
-    esc_amp_hours
-    esc_watt_hours*/
-    
     oledLcd.display();
 }
 
@@ -183,21 +164,44 @@ void MenuPrint_Menu_3(void)
 void MenuPrint_Menu_4(void)
 {
     oledLcd.clear(PAGE);
-    //oledLcd.setCursor(0, 5);
-    //oledLcd.print("Debug"); 
-    //byte posicio_x = map(NunchukX(), 0, 255, 0, 63);
-    //byte posicio_y = map(NunchukY(), 0, 255, 47, 5);
-    //oledLcd.pixel(posicio_x,posicio_y);
-    //oledLcd.setCursor(10, 15);
-    //oledLcd.print(NunchukY(), DEC);
-   
+    oledLcd.setTextSize(2);
+    oledLcd.setCursor(3, 10);
+    oledLcd.print(esc_current_motor, 1);
+    yield();
+    oledLcd.setTextSize(1);
+    oledLcd.setCursor(5, 33);
+    oledLcd.print("MotorAmps");
+    yield();
+    oledLcd.display();
+}
+
+
+void MenuPrint_Menu_5(void)
+{
+    oledLcd.clear(PAGE);
+    #if defined(ENABLEDEVMODE)
     byte remapY = map(NunchukY(), 1, 255, 1, 40);
     byte remapY_ORG = map(NunchukY_ORG(), 1, 255, 1, 40);
     oledLcd.rect(20, 7, 5, remapY);
     oledLcd.rect(40, 7, 5, remapY_ORG);
+    #else
+    oledLcd.setCursor(1, 5);
+    oledLcd.print("PwrUsed:");
+    oledLcd.setCursor(12, 15);
+    oledLcd.print(esc_watt_hours, 1);
+    oledLcd.print("Wh");
+    yield();
+    oledLcd.setCursor(1, 25);
+    oledLcd.print("PwrChrg:");
+    oledLcd.setCursor(12, 35);
+    oledLcd.print(esc_watt_hours_charged, 1);
+    oledLcd.print("Wh");
+    yield();
+    #endif
    
     oledLcd.display();
 }
+
 
 void MenuPrint_Error(void)
 {

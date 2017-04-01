@@ -12,27 +12,33 @@
 /******** General Configuration ***********************************************/
 #define BAUD_RATE_DEBUG       115200
 
+#define ENABLE_REMAPING_I2C_PIN
 /* Enable/Disable debug information */
 //#define ENABLEDEVMODE
 //#define ENABLE_DEV_UDP
+
+/* */
 #define ENABLE_INCREASE_RESOLUTION_ACCEL
-#define BRAKE_LOW_PASS_FILTER_FACTOR    15u /* Value beetween 1 (max filtering) - 32 (no filter)*/
-#define ACCEL_LOW_PASS_FILTER_FACTOR    21u /* Value beetween 1 (max filtering) - 32 (no filter)*/
+#define BRAKE_LOW_PASS_FILTER_FACTOR       15u /* Value beetween 1 (max filtering) - 32 (no filter)*/
+#define ACCEL_LOW_PASS_FILTER_FACTOR_L1    12u /* Value beetween 1 (max filtering) - 32 (no filter)*/
+#define ACCEL_LOW_PASS_FILTER_FACTOR_L2    20u /* Value beetween 1 (max filtering) - 32 (no filter)*/
 
 /* Connection timeouts configuration */
 #define WIFI_CONNECT_TIMEOUT           20u /* x 0,5s */
 #define UDP_PACKETS_TIMEOUT            50u
 
 /* Spine wheel and motor gear configuration to calculate speed */
-#define WHEEL_PERIMETER_CM      (float)56.0  
-#define MOTOR_GEAR_RATIO        (float)0.2105 /* 16/76 */
+#define WHEEL_PERIMETER_CM       (float)56.0 
+#define WHEEL_STEP_TACOMENTER_MM (float)3.4817
+#define MOTOR_GEAR_RATIO         (float)0.2105 /* 16/76 */
 
 /* Battery ranges defined to show 0%-100% in the Screen */
 #define VBAT_MIN_MV                   1980u
 #define VBAT_MAX_MV                   2550u
 
 /* Menu Buttons interaction */
-#define BUTTON_MENU_PRESSED()       ((NunchukX() < 20u)  || (NunchukX() > 230u))
+#define BUTTON_MENU_PRESSED_LEFT()  (NunchukX() < 20u)
+#define BUTTON_MENU_PRESSED_RIGTH() (NunchukX() > 230u)
 #define BUTTON_MENU_RELEASED()      ((NunchukX() > 110u) && (NunchukX() < 134u))
 
 /******** Arduino Pins Configuration ******************************************/
@@ -61,6 +67,8 @@ extern float esc_amp_hours;
 extern float esc_amp_hours_charged;
 extern float esc_watt_hours;
 extern float esc_watt_hours_charged;
+extern int32_t esc_tachometer;
+extern int32_t esc_tachometer_abs;
 
 extern unsigned char GetSystemState(void);
 
@@ -69,6 +77,7 @@ extern void MenuPrint_Menu_1(void);
 extern void MenuPrint_Menu_2(void);
 extern void MenuPrint_Menu_3(void);
 extern void MenuPrint_Menu_4(void);
+extern void MenuPrint_Menu_5(void);
 extern void MenuPrint_Error(void);
 
 extern byte NunchukIsZPressed(void);
